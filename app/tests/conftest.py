@@ -1,15 +1,11 @@
 import pytest
-import tempfile
 import os
 from app.app import app as flask_app
 
-@pytest.fixture
-def client():
-    tmp = tempfile.mktemp(suffix=".json")
-    flask_app.config["TESTING"] = True
-    flask_app.config["DATA_FILE"] = tmp
+@pytest.fixture(autouse=True)
+def client(tmp_path):
+    tmp = str(tmp_path / "tasks.json")
     os.environ["DATA_FILE"] = tmp
+    flask_app.config["TESTING"] = True
     with flask_app.test_client() as c:
         yield c
-    if os.path.exists(tmp):
-        os.remove(tmp)
