@@ -1,7 +1,16 @@
 import pytest
 import json
 import os
-from app.app import app
+import tempfile
+from app.app import app as flask_app
+
+@pytest.fixture(autouse=True)
+def client(tmp_path):
+    tmp = str(tmp_path / "tasks.json")
+    os.environ["DATA_FILE"] = tmp
+    flask_app.config["TESTING"] = True
+    with flask_app.test_client() as c:
+        yield c
 
 def test_health_check(client):
     res = client.get("/health")
@@ -26,8 +35,9 @@ def test_create_task_missing_title(client):
     assert res.status_code == 400
 
 def test_update_task(client):
-    client.post("/api/tasks", json={"title": "Learn CI/CD"})
-    res = client.put("/api/tasks/1", json={"done": True})
+    res = client.post("/api/tasks", json={"title": "Learn CI/CD"})
+    task_id = json.loads(res.data)["id"]
+    res = client.put(f"/api/tasks/{task_id}", json={"done": True})
     assert res.status_code == 200
     assert json.loads(res.data)["done"] is True
 
