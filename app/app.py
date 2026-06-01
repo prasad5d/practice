@@ -11,16 +11,16 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 
 def load_tasks():
-    if not os.path.exists(DATA_FILE):
+    data_file = os.getenv("DATA_FILE", "tasks.json")
+    if not os.path.exists(data_file):
         return []
-    with open(DATA_FILE, "r") as f:
+    with open(data_file, "r") as f:
         return json.load(f)
 
-
 def save_tasks(tasks):
-    with open(DATA_FILE, "w") as f:
+    data_file = os.getenv("DATA_FILE", "tasks.json")
+    with open(data_file, "w") as f:
         json.dump(tasks, f, indent=2)
-
 
 @app.route("/")
 def index():
