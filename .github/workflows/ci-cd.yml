@@ -86,3 +86,15 @@ jobs:
           echo "  3. Wait for health check to pass"
           echo "  4. Send Slack/email notification"
           echo "Deploy complete!"
+          
+# ── Job 4: Notify ──────────────────────────────────────────────────────────
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    steps:
+      - name: Set version
+        run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+      - name: Print success message
+        run: echo "Deployment successful! Version: $VERSION"
