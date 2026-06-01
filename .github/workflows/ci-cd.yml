@@ -33,6 +33,7 @@ jobs:
       - name: Run tests
         run: pytest app/tests/ -v          # tests live inside app/tests/
         env:
+          PYTHONPATH: ${{ github.workspace }}
           ENVIRONMENT: test
 
   # ── Job 2: Build Docker Image ───────────────────────────────────────────────
