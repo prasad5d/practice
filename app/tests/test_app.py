@@ -5,12 +5,19 @@ import tempfile
 from app.app import app as flask_app
 
 @pytest.fixture(autouse=True)
-def client(tmp_path):
-    tmp = str(tmp_path / "tasks.json")
-    os.environ["DATA_FILE"] = tmp
+def client():
+    tmp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
+    tmp.close()
+    os.unlink(tmp.name)  # file delete karo taaki empty start ho
+    
     flask_app.config["TESTING"] = True
+    flask_app.config["DATA_FILE"] = tmp.name
+    
     with flask_app.test_client() as c:
         yield c
+    
+    if os.path.exists(tmp.name):
+        os.remove(tmp.name)
 
 def test_health_check(client):
     res = client.get("/health")
